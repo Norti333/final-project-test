@@ -73,6 +73,6 @@ app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "./server/static/index.html"));
 });
 
-app.listen(8000, function() {
+app.listen(process.env.PORT || 8000, function() {
   console.log("You're app is now ready at http://*localhost:8000/");
 });
