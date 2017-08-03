@@ -1,13 +1,12 @@
-//** Dependencies
 const express = require("express");
 const bodyParser = require("body-parser");
+const path = require("path");
 const OpenTok = require("opentok");
 
 const apiKey = "45929252";
 const apiSecret = "35e09c239d512dedf9ce33b0b51e1b99ee5f2bcf";
 let names = [];
 
-//** Initialize the express app
 const app = express();
 
 app.use(express.static("./server/static/"));
@@ -30,7 +29,7 @@ app.post("/startSession", function(req, res) {
     var tokenOptions = {
       role: "moderator"
     };
-    let token = opentok.generateToken(sessionId);
+    let token = opentok.generateToken(sessionId, tokenOptions);
 
     let data = {
       apiKey: apiKey,
@@ -42,30 +41,33 @@ app.post("/startSession", function(req, res) {
       name: name,
       sessionId: sessionId
     });
-    console.log(names);
     res.send(data);
   });
 });
 
 app.post("/joinSession", function(req, res) {
   let nameToFind = req.body.name;
+
   function findName(myName) {
     return myName.name === nameToFind;
   }
+
   let temp = names.find(findName);
-  let sessionId = temp.sessionId;
 
-  // let tokenOptions = {};
-  // tokenOptions.role = "publisher";
-  let token = opentok.generateToken(sessionId);
+  if (!temp) {
+    console.log("Not A Valid Room Name");
+    res.send();
+  } else {
+    let sessionId = temp.sessionId;
+    let token = opentok.generateToken(sessionId);
+    let data = {
+      apiKey: apiKey,
+      sessionId: sessionId,
+      token: token
+    };
 
-  let data = {
-    apiKey: apiKey,
-    sessionId: sessionId,
-    token: token
-  };
-
-  res.send(data);
+    res.send(data);
+  }
 });
 
 //* Handle Browser refresh by redirecting to index.html
