@@ -26532,7 +26532,7 @@ var _react = __webpack_require__(7);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Form = __webpack_require__(254);
+var _Form = __webpack_require__(235);
 
 var _Form2 = _interopRequireDefault(_Form);
 
@@ -26561,27 +26561,27 @@ var FinalProject = function (_React$Component) {
   _createClass(FinalProject, [{
     key: "connectToSession",
     value: function connectToSession(data) {
-      if (!data.sessionId) {
-        alert("Please Enter A Valid Room Name.");
-      } else {
-        var session = OT.initSession(data.apiKey, data.sessionId);
-        var publisher = OT.initPublisher("publisher");
+      var session = OT.initSession(data.apiKey, data.sessionId);
+      var publisher = OT.initPublisher("publisher");
 
-        session.on({
-          sessionConnected: function sessionConnected(event) {
-            session.publish(publisher);
-          },
-          streamCreated: function streamCreated(event) {
-            var subContainer = document.createElement("div");
-            subContainer.id = "stream-" + event.stream.streamId;
-            document.getElementById("subscriber").appendChild(subContainer);
-            session.subscribe(event.stream, subContainer);
-          }
-        });
-        session.connect(data.token, function (err) {
+      session.on({
+        sessionConnected: function sessionConnected(event) {
+          session.publish(publisher);
+        },
+        streamCreated: function streamCreated(event) {
+          var subContainer = document.createElement("div");
+          subContainer.id = "stream-" + event.stream.streamId;
+          document.getElementById("subscriber").appendChild(subContainer);
+          session.subscribe(event.stream, subContainer);
+        }
+      });
+      session.connect(data.token, function (err) {
+        if (err) {
           console.log("Unable to Connect :( :  + " + err.message);
-        });
-      }
+        } else {
+          console.log("Connected to the Session.");
+        }
+      });
     }
   }, {
     key: "render",
@@ -26611,7 +26611,132 @@ var FinalProject = function (_React$Component) {
 exports.default = FinalProject;
 
 /***/ }),
-/* 235 */,
+/* 235 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(7);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var axios = __webpack_require__(98);
+
+var Form = function (_React$Component) {
+  _inherits(Form, _React$Component);
+
+  function Form(props) {
+    _classCallCheck(this, Form);
+
+    var _this = _possibleConstructorReturn(this, (Form.__proto__ || Object.getPrototypeOf(Form)).call(this, props));
+
+    _this.handleSubmitCreate = _this.handleSubmitCreate.bind(_this);
+    _this.handleSubmitJoin = _this.handleSubmitJoin.bind(_this);
+    _this.state = {
+      name: ""
+    };
+    return _this;
+  }
+
+  _createClass(Form, [{
+    key: "handleSubmitCreate",
+    value: function handleSubmitCreate(event) {
+      event.preventDefault();
+      var name = { name: this.state.name };
+      var self = this;
+      axios.post("/startSession", name).then(function (res) {
+        if (!res.data) {
+          alert("Room Name Already Exists.");
+        } else {
+          self.props.connectToSession(res.data);
+          self.setState({ name: "" });
+        }
+      }).catch(function (err) {
+        console.log(err);
+      });
+    }
+  }, {
+    key: "handleSubmitJoin",
+    value: function handleSubmitJoin(event) {
+      event.preventDefault();
+      var name = { name: this.state.name };
+      var self = this;
+      axios.post("/joinSession", name).then(function (res) {
+        if (!res.data) {
+          alert("Please Enter A Valid Room Name.");
+        } else {
+          self.props.connectToSession(res.data);
+          self.setState({ name: "" });
+        }
+      }).catch(function (err) {
+        console.log(err);
+      });
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var _this2 = this;
+
+      return _react2.default.createElement(
+        "form",
+        { action: "#", id: "MyForm", onSubmit: this.handleSubmitCreate },
+        _react2.default.createElement(
+          "div",
+          { className: "input-group col-lg-4" },
+          _react2.default.createElement("input", {
+            type: "text",
+            className: "input-lg",
+            id: "name",
+            placeholder: "Enter Name",
+            required: true,
+            value: this.state.name,
+            onChange: function onChange(event) {
+              return _this2.setState({ name: event.target.value });
+            }
+          }),
+          _react2.default.createElement(
+            "div",
+            { className: "" },
+            _react2.default.createElement(
+              "button",
+              { className: "btn btn-primary btn-lg", type: "submit" },
+              "Create!"
+            ),
+            _react2.default.createElement(
+              "button",
+              {
+                className: "btn btn-primary btn-lg",
+                onClick: this.handleSubmitJoin
+              },
+              "Join!"
+            )
+          )
+        )
+      );
+    }
+  }]);
+
+  return Form;
+}(_react2.default.Component);
+
+exports.default = Form;
+
+/***/ }),
 /* 236 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -27478,124 +27603,6 @@ module.exports = function spread(callback) {
   };
 };
 
-
-/***/ }),
-/* 254 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = __webpack_require__(7);
-
-var _react2 = _interopRequireDefault(_react);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var axios = __webpack_require__(98);
-
-var Form = function (_React$Component) {
-  _inherits(Form, _React$Component);
-
-  function Form(props) {
-    _classCallCheck(this, Form);
-
-    var _this = _possibleConstructorReturn(this, (Form.__proto__ || Object.getPrototypeOf(Form)).call(this, props));
-
-    _this.handleSubmitCreate = _this.handleSubmitCreate.bind(_this);
-    _this.handleSubmitJoin = _this.handleSubmitJoin.bind(_this);
-    _this.state = {
-      name: ""
-    };
-    return _this;
-  }
-
-  _createClass(Form, [{
-    key: "handleSubmitCreate",
-    value: function handleSubmitCreate(event) {
-      event.preventDefault();
-      var name = { name: this.state.name };
-      var self = this;
-      axios.post("/startSession", name).then(function (res) {
-        self.props.connectToSession(res.data);
-        self.setState({ name: "" });
-      }).catch(function (err) {
-        console.log(err);
-      });
-    }
-  }, {
-    key: "handleSubmitJoin",
-    value: function handleSubmitJoin(event) {
-      event.preventDefault();
-      var name = { name: this.state.name };
-      var self = this;
-      axios.post("/joinSession", name).then(function (res) {
-        self.props.connectToSession(res.data);
-        self.setState({ name: "" });
-      }).catch(function (err) {
-        console.log(err);
-      });
-    }
-  }, {
-    key: "render",
-    value: function render() {
-      var _this2 = this;
-
-      return _react2.default.createElement(
-        "form",
-        { action: "#", id: "MyForm", onSubmit: this.handleSubmitCreate },
-        _react2.default.createElement(
-          "div",
-          { className: "input-group col-lg-4" },
-          _react2.default.createElement("input", {
-            type: "text",
-            className: "input-lg",
-            id: "name",
-            placeholder: "Enter Name",
-            required: true,
-            value: this.state.name,
-            onChange: function onChange(event) {
-              return _this2.setState({ name: event.target.value });
-            }
-          }),
-          _react2.default.createElement(
-            "div",
-            { className: "" },
-            _react2.default.createElement(
-              "button",
-              { className: "btn btn-primary btn-lg", type: "submit" },
-              "Create!"
-            ),
-            _react2.default.createElement(
-              "button",
-              {
-                className: "btn btn-primary btn-lg",
-                onClick: this.handleSubmitJoin
-              },
-              "Join!"
-            )
-          )
-        )
-      );
-    }
-  }]);
-
-  return Form;
-}(_react2.default.Component);
-
-exports.default = Form;
 
 /***/ })
 /******/ ]);

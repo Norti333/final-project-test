@@ -19,8 +19,12 @@ class Form extends React.Component {
     axios
       .post("/startSession", name)
       .then(function(res) {
-        self.props.connectToSession(res.data);
-        self.setState({ name: "" });
+        if (!res.data) {
+          alert("Room Name Already Exists.");
+        } else {
+          self.props.connectToSession(res.data);
+          self.setState({ name: "" });
+        }
       })
       .catch(function(err) {
         console.log(err);
@@ -34,8 +38,12 @@ class Form extends React.Component {
     axios
       .post("/joinSession", name)
       .then(function(res) {
-        self.props.connectToSession(res.data);
-        self.setState({ name: "" });
+        if (!res.data) {
+          alert("Please Enter A Valid Room Name.");
+        } else {
+          self.props.connectToSession(res.data);
+          self.setState({ name: "" });
+        }
       })
       .catch(function(err) {
         console.log(err);

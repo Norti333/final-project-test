@@ -18,31 +18,41 @@ app.use(bodyParser.urlencoded({ extended: false }));
 const opentok = new OpenTok(apiKey, apiSecret);
 
 app.post("/startSession", function(req, res) {
-  let name = req.body.name;
+  let nameToFind = req.body.name;
 
-  // ** Create a Session
-  opentok.createSession({ mediaMode: "relayed" }, function(err, session) {
-    if (err) throw err;
-    let sessionId = session.sessionId;
+  function findName(myName) {
+    return myName.name === nameToFind;
+  }
+  let temp = names.find(findName);
 
-    //* Generate a New Token
-    var tokenOptions = {
-      role: "moderator"
-    };
-    let token = opentok.generateToken(sessionId, tokenOptions);
+  if (temp) {
+    console.log("Room Name Already Exists.");
+    res.send();
+  } else {
+    // ** Create a Session
+    opentok.createSession({ mediaMode: "relayed" }, function(err, session) {
+      if (err) throw err;
+      let sessionId = session.sessionId;
 
-    let data = {
-      apiKey: apiKey,
-      sessionId: sessionId,
-      token: token
-    };
+      //* Generate a New Token
+      var tokenOptions = {
+        role: "moderator"
+      };
+      let token = opentok.generateToken(sessionId, tokenOptions);
 
-    names.push({
-      name: name,
-      sessionId: sessionId
+      let data = {
+        apiKey: apiKey,
+        sessionId: sessionId,
+        token: token
+      };
+
+      names.push({
+        name: nameToFind,
+        sessionId: sessionId
+      });
+      res.send(data);
     });
-    res.send(data);
-  });
+  }
 });
 
 app.post("/joinSession", function(req, res) {
@@ -51,7 +61,6 @@ app.post("/joinSession", function(req, res) {
   function findName(myName) {
     return myName.name === nameToFind;
   }
-
   let temp = names.find(findName);
 
   if (!temp) {

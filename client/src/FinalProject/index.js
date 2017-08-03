@@ -10,27 +10,27 @@ class FinalProject extends React.Component {
   }
 
   connectToSession(data) {
-    if (!data.sessionId) {
-      alert("Please Enter A Valid Room Name.");
-    } else {
-      let session = OT.initSession(data.apiKey, data.sessionId);
-      let publisher = OT.initPublisher("publisher");
+    let session = OT.initSession(data.apiKey, data.sessionId);
+    let publisher = OT.initPublisher("publisher");
 
-      session.on({
-        sessionConnected: function(event) {
-          session.publish(publisher);
-        },
-        streamCreated: function(event) {
-          let subContainer = document.createElement("div");
-          subContainer.id = "stream-" + event.stream.streamId;
-          document.getElementById("subscriber").appendChild(subContainer);
-          session.subscribe(event.stream, subContainer);
-        }
-      });
-      session.connect(data.token, function(err) {
+    session.on({
+      sessionConnected: function(event) {
+        session.publish(publisher);
+      },
+      streamCreated: function(event) {
+        let subContainer = document.createElement("div");
+        subContainer.id = "stream-" + event.stream.streamId;
+        document.getElementById("subscriber").appendChild(subContainer);
+        session.subscribe(event.stream, subContainer);
+      }
+    });
+    session.connect(data.token, function(err) {
+      if (err) {
         console.log(`Unable to Connect :( :  + ${err.message}`);
-      });
-    }
+      } else {
+        console.log("Connected to the Session.");
+      }
+    });
   }
 
   render() {
